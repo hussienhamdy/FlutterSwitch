@@ -11,39 +11,40 @@ class FlutterSwitch extends StatefulWidget {
   /// * [onToggle] is called when the user toggles the switch on or off.
   ///
 
-  const FlutterSwitch({
-    Key? key,
-    required this.value,
-    required this.onToggle,
-    this.activeColor = Colors.blue,
-    this.inactiveColor = Colors.grey,
-    this.activeTextColor = Colors.white70,
-    this.inactiveTextColor = Colors.white70,
-    this.toggleColor = Colors.white,
-    this.activeToggleColor,
-    this.inactiveToggleColor,
-    this.width = 70.0,
-    this.height = 35.0,
-    this.toggleSize = 25.0,
-    this.valueFontSize = 16.0,
-    this.borderRadius = 20.0,
-    this.padding = 4.0,
-    this.showOnOff = false,
-    this.activeText,
-    this.inactiveText,
-    this.activeTextFontWeight,
-    this.inactiveTextFontWeight,
-    this.switchBorder,
-    this.activeSwitchBorder,
-    this.inactiveSwitchBorder,
-    this.toggleBorder,
-    this.activeToggleBorder,
-    this.inactiveToggleBorder,
-    this.activeIcon,
-    this.inactiveIcon,
-    this.duration = const Duration(milliseconds: 200),
-    this.disabled = false,
-  })  : assert(
+  const FlutterSwitch(
+      {Key? key,
+      required this.value,
+      required this.onToggle,
+      this.activeColor = Colors.blue,
+      this.inactiveColor = Colors.grey,
+      this.activeTextColor = Colors.white70,
+      this.inactiveTextColor = Colors.white70,
+      this.toggleColor = Colors.white,
+      this.activeToggleColor,
+      this.inactiveToggleColor,
+      this.width = 70.0,
+      this.height = 35.0,
+      this.toggleSize = 25.0,
+      this.valueFontSize = 16.0,
+      this.borderRadius = 20.0,
+      this.padding = 4.0,
+      this.showOnOff = false,
+      this.activeText,
+      this.inactiveText,
+      this.activeTextFontWeight,
+      this.inactiveTextFontWeight,
+      this.switchBorder,
+      this.activeSwitchBorder,
+      this.inactiveSwitchBorder,
+      this.toggleBorder,
+      this.activeToggleBorder,
+      this.inactiveToggleBorder,
+      this.activeIcon,
+      this.inactiveIcon,
+      this.duration = const Duration(milliseconds: 200),
+      this.disabled = false,
+      this.isRTL = false})
+      : assert(
             (switchBorder == null || activeSwitchBorder == null) &&
                 (switchBorder == null || inactiveSwitchBorder == null),
             'Cannot provide switchBorder when an activeSwitchBorder or inactiveSwitchBorder was given\n'
@@ -251,6 +252,8 @@ class FlutterSwitch extends StatefulWidget {
   /// Defaults to the value of false.
   final bool disabled;
 
+  final bool isRTL;
+
   @override
   _FlutterSwitchState createState() => _FlutterSwitchState();
 }
@@ -268,15 +271,27 @@ class _FlutterSwitchState extends State<FlutterSwitch>
       value: widget.value ? 1.0 : 0.0,
       duration: widget.duration,
     );
-    _toggleAnimation = AlignmentTween(
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.linear,
-      ),
-    );
+    if (widget.isRTL == true) {
+      _toggleAnimation = AlignmentTween(
+        begin: Alignment.centerRight,
+        end: Alignment.centerLeft,
+      ).animate(
+        CurvedAnimation(
+          parent: _animationController,
+          curve: Curves.linear,
+        ),
+      );
+    } else {
+      _toggleAnimation = AlignmentTween(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      ).animate(
+        CurvedAnimation(
+          parent: _animationController,
+          curve: Curves.linear,
+        ),
+      );
+    }
   }
 
   @override
@@ -325,96 +340,89 @@ class _FlutterSwitchState extends State<FlutterSwitch>
     return AnimatedBuilder(
       animation: _animationController,
       builder: (context, child) {
-        return Container(
-          width: widget.width,
-          child: Align(
-            child: GestureDetector(
-              onTap: () {
-                if (!widget.disabled) {
-                  if (widget.value)
-                    _animationController.forward();
-                  else
-                    _animationController.reverse();
+        return Align(
+          child: GestureDetector(
+            onTap: () {
+              if (!widget.disabled) {
+                if (widget.value)
+                  _animationController.forward();
+                else
+                  _animationController.reverse();
 
-                  widget.onToggle(!widget.value);
-                }
-              },
-              child: Opacity(
-                opacity: widget.disabled ? 0.6 : 1,
-                child: Container(
-                  width: widget.width,
-                  height: widget.height,
-                  padding: EdgeInsets.all(widget.padding),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(widget.borderRadius),
-                    color: _switchColor,
-                    border: _switchBorder,
-                  ),
-                  child: Stack(
-                    children: <Widget>[
-                      AnimatedOpacity(
-                        opacity: widget.value ? 1.0 : 0.0,
+                widget.onToggle(!widget.value);
+              }
+            },
+            child: Opacity(
+              opacity: widget.disabled ? 0.6 : 1,
+              child: Container(
+                width: widget.width,
+                height: widget.height,
+                padding: EdgeInsets.all(widget.padding),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                  color: _switchColor,
+                  border: _switchBorder,
+                ),
+                child: Stack(
+                  children: <Widget>[
+                    AnimatedOpacity(
+                      opacity: widget.value ? 1.0 : 0.0,
+                      duration: widget.duration,
+                      child: Container(
+                        width: _textSpace,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: _activeText,
+                      ),
+                    ),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: AnimatedOpacity(
+                        opacity: !widget.value ? 1.0 : 0.0,
                         duration: widget.duration,
                         child: Container(
                           width: _textSpace,
-                          padding: EdgeInsets.symmetric(horizontal: 4.0),
-                          alignment: Alignment.centerLeft,
-                          child: _activeText,
+                          alignment: AlignmentDirectional.centerEnd,
+                          child: _inactiveText,
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: AnimatedOpacity(
-                          opacity: !widget.value ? 1.0 : 0.0,
-                          duration: widget.duration,
-                          child: Container(
-                            width: _textSpace,
-                            padding: EdgeInsets.symmetric(horizontal: 4.0),
-                            alignment: Alignment.centerRight,
-                            child: _inactiveText,
+                    ),
+                    Container(
+                      child: Align(
+                        alignment: _toggleAnimation.value,
+                        child: Container(
+                          margin:
+                              EdgeInsets.symmetric(horizontal: 2, vertical: 2),
+                          width: widget.height,
+                          height: widget.height,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _toggleColor,
+                            border: _toggleBorder,
                           ),
-                        ),
-                      ),
-                      Container(
-                        child: Align(
-                          alignment: _toggleAnimation.value,
                           child: Container(
-                            width: widget.toggleSize,
-                            height: widget.toggleSize,
-                            padding: EdgeInsets.all(4.0),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: _toggleColor,
-                              border: _toggleBorder,
-                            ),
-                            child: FittedBox(
-                              fit: BoxFit.contain,
-                              child: Container(
-                                child: Stack(
-                                  children: [
-                                    Center(
-                                      child: AnimatedOpacity(
-                                        opacity: widget.value ? 1.0 : 0.0,
-                                        duration: widget.duration,
-                                        child: widget.activeIcon,
-                                      ),
-                                    ),
-                                    Center(
-                                      child: AnimatedOpacity(
-                                        opacity: !widget.value ? 1.0 : 0.0,
-                                        duration: widget.duration,
-                                        child: widget.inactiveIcon,
-                                      ),
-                                    ),
-                                  ],
+                            child: Stack(
+                              children: [
+                                Center(
+                                  child: AnimatedOpacity(
+                                    opacity: widget.value ? 1.0 : 0.0,
+                                    duration: widget.duration,
+                                    child: widget.activeIcon,
+                                  ),
                                 ),
-                              ),
+                                Center(
+                                  child: AnimatedOpacity(
+                                    opacity: !widget.value ? 1.0 : 0.0,
+                                    duration: widget.duration,
+                                    child: widget.inactiveIcon,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
